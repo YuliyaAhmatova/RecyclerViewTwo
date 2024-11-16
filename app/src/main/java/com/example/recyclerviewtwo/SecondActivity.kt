@@ -16,14 +16,10 @@ import androidx.recyclerview.widget.RecyclerView
 
 class SecondActivity : AppCompatActivity() {
 
-    companion object {
-        const val REQUEST_CODE = 100
-    }
-
-    private var updateThing: Thing? = null
+    private var updatedThing: Thing? = null
     private var adapter: CustomAdapter? = null
+    private var thingsUpdate: MutableList<Thing>? = null
     private var things: MutableList<Thing> = ThingDataBase.things
-    private val dataBase = DBHelper(this)
 
     private lateinit var toolbarSA: Toolbar
     private lateinit var recyclerViewRV: RecyclerView
@@ -46,11 +42,18 @@ class SecondActivity : AppCompatActivity() {
         title = "Мой гардероб"
 
         recyclerViewRV.layoutManager = LinearLayoutManager(this)
+    }
 
-        if (intent.getSerializableExtra("updateThing")!=null) {
-            things = intent.getSerializableExtra("list") as MutableList<Thing>
+    override fun onResume() {
+        super.onResume()
+        updatedThing = intent.getSerializableExtra("updatedThing") as Thing?
+        if (updatedThing != null) {
+            thingsUpdate = intent.getSerializableExtra("list") as MutableList<Thing>
+            viewDataAdapter()
+        } else {
+            thingsUpdate = things
+            viewDataAdapter()
         }
-        viewDataAdapter()
 
         recyclerViewRV.setHasFixedSize(true)
         adapter?.setOnThingClickListener(object :
@@ -59,7 +62,7 @@ class SecondActivity : AppCompatActivity() {
                 val item = position
                 val intent = Intent(this@SecondActivity, ThirdActivity::class.java)
                 intent.putExtra("thing", thing)
-                intent.putExtra("things", things as ArrayList<Thing>)
+                intent.putExtra("things", thingsUpdate as ArrayList<Thing>)
                 intent.putExtra("position", item)
                 startActivity(intent)
             }
@@ -68,7 +71,7 @@ class SecondActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun viewDataAdapter() {
-        adapter = CustomAdapter(things)
+        adapter = CustomAdapter(thingsUpdate!!)
         recyclerViewRV.adapter = adapter
         adapter?.notifyDataSetChanged()
     }

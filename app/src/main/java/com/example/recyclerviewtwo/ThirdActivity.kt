@@ -1,7 +1,6 @@
 package com.example.recyclerviewtwo
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -21,8 +20,7 @@ import androidx.core.view.WindowInsetsCompat
 @Suppress("UNCHECKED_CAST")
 class ThirdActivity : AppCompatActivity() {
 
-    var updateThing:Thing? = null
-    private var thing: Thing? = null
+    private var updatedThing: Thing? = null
 
     private lateinit var layoutCL: ConstraintLayout
 
@@ -57,11 +55,10 @@ class ThirdActivity : AppCompatActivity() {
         val things = intent.getSerializableExtra("things")
         val item = intent.extras?.getInt("position")
 
-        if (thing != null) {
-            displayNameTV.text = thing!!.name
-            displayDescriptionTV.text = thing!!.description
-            displayImageViewIV.setImageResource(thing!!.image)
-        }
+        displayNameTV.text = thing.name
+        displayDescriptionTV.text = thing.description
+        displayImageViewIV.setImageResource(thing.image)
+
 
         layoutCL.setOnLongClickListener {
             val dialog = AlertDialog.Builder(this)
@@ -76,7 +73,7 @@ class ThirdActivity : AppCompatActivity() {
             dialog.setPositiveButton("Обновить") { _, _ ->
                 displayNameTV.text = nameET.text.toString()
                 displayDescriptionTV.text = descriptionET.text.toString()
-                updateThing = Thing(
+                updatedThing = Thing(
                     displayNameTV.text.toString(),
                     displayDescriptionTV.text.toString(),
                     thing.image
@@ -84,12 +81,14 @@ class ThirdActivity : AppCompatActivity() {
 
                 val list: MutableList<Thing> = things as MutableList<Thing>
                 if (item != null) {
-                    swap(item, thing, list)
+                    swap(item, updatedThing!!, list)
                 }
 
                 val intent = Intent(this@ThirdActivity, SecondActivity::class.java)
-                intent.putExtra("updatedThing", updateThing)
+                intent.putExtra("updatedThing", updatedThing)
                 intent.putExtra("list", list as ArrayList<Thing>)
+                startActivity(intent)
+
             }
             dialog.setNegativeButton("Отмена") { _, _ ->
             }
@@ -99,7 +98,7 @@ class ThirdActivity : AppCompatActivity() {
 
     }
 
-    fun swap(item: Int, thing: Thing, list: MutableList<Thing>) {
+    private fun swap(item: Int, thing: Thing, list: MutableList<Thing>) {
         list.add(item + 1, thing)
         list.removeAt(item)
     }
